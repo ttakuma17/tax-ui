@@ -1,6 +1,6 @@
-import { Box, Card, CardBody, CardHeader, Center, Heading, Text, VStack } from "@chakra-ui/react";
+import { Box, Card, CardBody, CardHeader, CardProps, Center, Heading, Text, VStack } from "@chakra-ui/react";
 
-type ResultProps = {
+type ResultProps = CardProps&{
     tax: number | null
 }
 
