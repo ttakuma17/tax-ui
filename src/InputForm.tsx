@@ -1,21 +1,21 @@
-import { useForm } from "react-hook-form";
+import { SubmitHandler, useForm } from "react-hook-form";
 
 import { Button, Card, CardBody, CardHeader, CardProps, Center, Checkbox, FormControl, FormHelperText, FormLabel, Heading, HStack, Input, InputGroup, InputRightAddon, Radio, RadioGroup, Spacer, Stack, VStack } from "@chakra-ui/react";
 
 
-type FormInputs = {
+export type FormInputs = {
     yearsOfService: string
     isDisability: boolean
     isExecutive: boolean
     severancePay: string
 }
 
-export const InputForm = ({ ...props }: CardProps) => {
-    const { register, handleSubmit } = useForm<FormInputs>();
+type InputFormProps = CardProps & {
+    onInputFormSubmit: SubmitHandler<FormInputs>
+}
 
-    const onInputFormSubmit = (formInputs: FormInputs) => { 
-        console.log(formInputs);
-    }
+export const InputForm = ({ onInputFormSubmit, ...props }: InputFormProps) => {
+    const { register, handleSubmit } = useForm<FormInputs>();
 
     return (
         <Card w={400} {...props}>

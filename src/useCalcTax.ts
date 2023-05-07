@@ -9,7 +9,7 @@ export type CalcTaxParam = {
     severancePay: number
 }
 
-export type CalcResult = {
+export type CalcTaxResult = {
     tax:number
 }
 
