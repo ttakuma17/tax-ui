@@ -5,19 +5,35 @@ import { z } from "zod";
 
 import { Button, Card, CardBody, CardHeader, CardProps, Center, Checkbox, FormControl, FormHelperText, FormLabel, Heading, HStack, Input, InputGroup, InputRightAddon, Radio, RadioGroup, Spacer, Stack, VStack , FormErrorMessage } from "@chakra-ui/react";
 
-export type FormInputs = {
-    yearsOfService: string
-    isDisability: boolean
-    isExecutive: boolean
-    severancePay: string
-}
+const schema = z
+    .object({
+        yearsOfService: z.number().int().gte(1).lte(100),
+        isDisability: z.boolean(),
+        isExecutive: z.string().transform((val) => !!Number(val)),
+        severancePay: z.number().int().gte(0).lte(1_000_000_000_000),
+    })
+    .strict();
+
+export type FormInputs = z.infer<typeof schema>
+
+// export type FormInputs = {
+//     yearsOfService: string
+//     isDisability: boolean
+//     isExecutive: boolean
+//     severancePay: string
+// }
 
 type InputFormProps = CardProps & {
     onInputFormSubmit: SubmitHandler<FormInputs>
 }
 
 export const InputForm = ({ onInputFormSubmit, ...props }: InputFormProps) => {
-    const { register, handleSubmit } = useForm<FormInputs>();
+    const {
+        register, handleSubmit, formState: { errors },
+    } = useForm<FormInputs>({
+        resolver: zodResolver(schema),
+        mode: "onChange",
+    });
 
     return (
         <Card w={400} {...props}>
@@ -27,17 +43,21 @@ export const InputForm = ({ onInputFormSubmit, ...props }: InputFormProps) => {
                 </Center>
             </CardHeader>
             <CardBody>
-                <form onSubmit={handleSubmit(onInputFormSubmit)}>
+                <form onSubmit={handleSubmit(onInputFormSubmit)} noValidate>
                     <VStack spacing={5}>
-                        <FormControl>
+                        <FormControl isInvalid={ !!errors.yearsOfService }>
                             <FormLabel fontWeight="bold">勤続年数</FormLabel>
                             <HStack>
                                 <InputGroup w="120px">
-                                    <Input type="number" defaultValue="10" {...register("yearsOfService")} />
+                                    <Input type="number" defaultValue="10" {...register("yearsOfService",  { valueAsNumber: true })} />
                                     <InputRightAddon>年</InputRightAddon>
                                 </InputGroup>
-                        <FormHelperText>1年未満の端数は切り上げ</FormHelperText> </HStack>
-                        <Spacer />
+                                <FormHelperText>1年未満の端数は切り上げ</FormHelperText>
+                            </HStack>
+                            <FormErrorMessage>
+                                有効な勤続年数を入力してください
+                            </FormErrorMessage>
+                            <Spacer />
                         </FormControl>
                         <FormControl>
                             <FormLabel fontWeight="bold">退職基因</FormLabel>
@@ -52,10 +72,14 @@ export const InputForm = ({ onInputFormSubmit, ...props }: InputFormProps) => {
                                 </Stack>
                             </RadioGroup>
                         </FormControl>
-                        <FormControl>
+                        <FormControl isInvalid={!!errors.severancePay}>
                             <FormLabel fontWeight="bold">退職金</FormLabel> <InputGroup w="200px">
-                            <Input type="number" defaultValue="5000000" {...register("severancePay")} />
-                            <InputRightAddon>円</InputRightAddon> </InputGroup>
+                            <Input type="number" defaultValue="5000000" {...register("severancePay", {valueAsNumber: true})} />
+                                <InputRightAddon>円</InputRightAddon>
+                            </InputGroup>
+                            <FormErrorMessage>
+                                有効な退職金を入力してください
+                            </FormErrorMessage>
                         </FormControl>
                         <Button colorScheme="blue" alignSelf="flex-end" type="submit">
                             所得税を計算する
